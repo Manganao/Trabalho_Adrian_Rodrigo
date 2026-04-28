@@ -1,0 +1,134 @@
+ Documento de Estratégia de Testes
+Projeto: App Academia
+ Repositório: https://github.com/Manganao/Trabalho_Adrian_Rodrigo
+Funcionalidades Principais
+Cadastro de Aluno (Alunoc.js)
+Regras de Negócio
+Os campos nome, data_nascimento, email e senha são obrigatórios para o cadastro. Caso algum esteja ausente, o sistema retorna HTTP 400 com a mensagem de erro correspondente.
+O e-mail deve ser único no sistema — não é permitido cadastrar dois alunos com o mesmo endereço de e-mail.
+O campo telefone é opcional.
+O cadastro bem-sucedido retorna HTTP 201 com os dados do aluno criado.
+Ao buscar um aluno por ID inexistente, o sistema retorna HTTP 404 com a mensagem "Aluno não encontrado."
+
+ID
+Nome do Caso de Teste
+Tipo
+Descrição
+Resultado Esperado
+CT-01
+Cadastro de aluno com dados válidos
+Unitário
+Enviar POST /alunos com nome, data_nascimento, email e senha preenchidos corretamente.
+HTTP 201; objeto do aluno criado retornado no corpo da resposta.
+CT-02
+Cadastro de aluno sem campos obrigatórios
+Unitário
+Enviar POST /alunos omitindo o campo email.
+HTTP 400 com a mensagem: "Nome, data_nascimento, email e senha são obrigatórios."
+
+Casos de Teste
+Matrícula (MatriculaC.js)
+Regras de Negócio
+Uma matrícula associa um Aluno a um Plano, registrando a data de início.
+O sistema retorna o nome do aluno e o nome do plano ao listar ou buscar matrículas (via JOIN com as tabelas Aluno e Plano).
+Ao tentar buscar, atualizar ou excluir uma matrícula por ID inexistente, o sistema retorna HTTP 404 com a mensagem "Matrícula não encontrada."
+A listagem de matrículas é ordenada pela data_inicio de forma decrescente (mais recentes primeiro).
+A exclusão de uma matrícula é permanente e não pode ser desfeita.
+Casos de Teste
+ID
+Nome do Caso de Teste
+Tipo
+Descrição
+Resultado Esperado
+CT-03
+Criar matrícula vinculando aluno e plano existentes
+Integração
+Enviar POST /matriculas com aluno_id e plano_id de registros existentes no banco.
+HTTP 201; matrícula criada e retornada com os dados do aluno e do plano incluídos.
+CT-04
+Buscar matrícula com ID inexistente
+Integração
+Enviar GET /matriculas/99999 para um ID que não existe na base de dados.
+HTTP 404 com a mensagem: "Matrícula não encontrada."
+
+
+Gerenciamento de Treinos (Treinoc.js)
+Regras de Negócio
+Um treino deve estar obrigatoriamente vinculado a um aluno (aluno_id) e a um instrutor (instrutor_id). Ambos os campos são obrigatórios.
+O campo objetivo (ex: hipertrofia, emagrecimento) é opcional.
+A listagem de treinos inclui o nome do aluno e o nome do instrutor associados, ordenados pela data_criacao de forma decrescente.
+Ao buscar, atualizar ou excluir um treino inexistente, o sistema retorna HTTP 404 com a mensagem "Treino não encontrado."
+A criação bem-sucedida retorna HTTP 201 com os dados do treino criado.
+Casos de Teste
+ID
+Nome do Caso de Teste
+Tipo
+Descrição
+Resultado Esperado
+CT-05
+Fluxo completo: criar aluno, matricular e atribuir treino
+E2E
+Criar um aluno → criar uma matrícula para ele → criar um treino vinculando aluno e instrutor → verificar que o treino aparece na listagem com o nome do aluno e do instrutor.
+Treino retornado na listagem com nome do aluno e do instrutor corretamente preenchidos.
+CT-06
+Criar treino sem campos obrigatórios
+Unitário
+Enviar POST /treinos sem o campo instrutor_id.
+HTTP 400 com a mensagem: "aluno_id e instrutor_id são obrigatórios."
+
+
+Resumo dos Casos de Teste
+ID
+Funcionalidade
+Cenário
+Classificação
+Tipo
+CT-01
+Cadastro de Aluno
+Cadastro com dados válidos
+Unitário
+✅ Positivo
+CT-02
+Cadastro de Aluno
+Campos obrigatórios ausentes
+Unitário
+❌ Negativo
+CT-03
+Matrícula
+Criar matrícula com aluno e plano válidos
+Integração
+✅ Positivo
+CT-04
+Matrícula
+Buscar matrícula com ID inexistente
+Integração
+❌ Negativo
+CT-05
+Treinos
+Fluxo completo cadastro → treino
+E2E
+✅ Positivo
+CT-06
+Treinos
+Criar treino sem campos obrigatórios
+Unitário
+❌ Negativo
+
+
+Definição dos Tipos de Teste
+Unitário: Testa uma função ou método isolado, sem dependências externas. Utiliza mocks para banco de dados e serviços externos. Foco na lógica de validação interna do controller.
+Integração: Testa a interação entre dois ou mais módulos do sistema, como o controller + banco de dados real (ou em memória). Verifica se as camadas se comunicam corretamente.
+E2E (End-to-End): Simula o comportamento real do usuário percorrendo o sistema de ponta a ponta, desde a requisição HTTP até o banco de dados, validando o fluxo completo de uma funcionalidade.
+
+Ferramentas Sugeridas
+Tipo
+Ferramenta
+Unitário
+Jest + mocks (jest.fn / sinon)
+Integração
+Jest + Supertest + banco SQLite em memória
+E2E
+Supertest com banco de teste isolado
+
+
+
