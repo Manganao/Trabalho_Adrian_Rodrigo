@@ -22,7 +22,7 @@
             }
           ],
           "preRequestScript": "",
-          "testScript": "",
+          "testScript": "pw.test(\"Retorno 200\", ()=> {\n\npw.expect(pw.response.status).toBe(200);\n\npw.expect(pw.response.body).toBeType('object')\n\n});",
           "auth": {
             "authType": "none",
             "authActive": false
